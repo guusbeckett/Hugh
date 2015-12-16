@@ -70,6 +70,20 @@ namespace HughLib
             }
         }
 
+        bool _isGroup;
+        public bool isGroup
+        {
+            get
+            {
+                return this._isGroup;
+            }
+            set
+            {
+                this._isGroup = value;
+                NotifyPropertyChanged();
+            }
+        }
+
         int _hue;
         public int hue
         {
@@ -204,7 +218,7 @@ namespace HughLib
             }
         }
 
-        public Light(int id, string name, bool on, int hue, int saturation, int value, Effect effect, bool reachable)
+        public Light(int id, string name, bool on, int hue, int saturation, int value, Effect effect, bool reachable, bool isGroup)
         {
             this.id = id;
             this.name = name;
@@ -214,6 +228,7 @@ namespace HughLib
             this.value = value;
             this.effect = effect;
             this.reachable = reachable;
+            this.isGroup = isGroup;
         }
 
         // NotifyPropertyChanged will raise the PropertyChanged event, 
