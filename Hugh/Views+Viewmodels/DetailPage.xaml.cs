@@ -1,4 +1,5 @@
 ﻿using Hugh.Common;
+using Hugh.Services;
 using HughLib;
 using System;
 using System.Collections.Generic;
@@ -24,7 +25,7 @@ using Windows.Web.Http;
 
 // The Blank Page item template is documented at http://go.microsoft.com/fwlink/?LinkId=234238
 
-namespace Hugh
+namespace Hugh.Views_Viewmodels
 {
     /// <summary>
     /// An empty page that can be used on its own or navigated to within a Frame.
@@ -43,7 +44,6 @@ namespace Hugh
             this._navigationHelper = new NavigationHelper(this);
             this._navigationHelper.LoadState += this.NavigationHelper_LoadState;
             this._navigationHelper.SaveState += this.NavigationHelper_SaveState;
-
         }
 
 
@@ -184,7 +184,7 @@ namespace Hugh
                 HttpStringContent content = new HttpStringContent(string.Format("{{ \"name\": \"{0}\" }}", this._light.name), Windows.Storage.Streams.UnicodeEncoding.Utf8, "application/json");
                 string ip, username;
                 int port;
-                MainPage.RetrieveSettings(out ip, out port, out username);
+                SettingsService.RetrieveSettings(out ip, out port, out username);
                 var response = await client.PutAsync(new Uri(string.Format("http://{0}:{1}/api/{2}/lights/{3}", ip, port, username, this._light.id)), content).AsTask(cts.Token);
 
                 if (!response.IsSuccessStatusCode)
@@ -216,7 +216,7 @@ namespace Hugh
                 HttpStringContent content = new HttpStringContent(string.Format("{{ \"on\": {0} }}", this._light.on.ToString().ToLower()), Windows.Storage.Streams.UnicodeEncoding.Utf8, "application/json");
                 string ip, username;
                 int port;
-                MainPage.RetrieveSettings(out ip, out port, out username);
+                SettingsService.RetrieveSettings(out ip, out port, out username);
                 var response = await client.PutAsync(new Uri(string.Format("http://{0}:{1}/api/{2}/lights/{3}/state", ip, port, username, this._light.id)), content).AsTask(cts.Token);
 
                 if (!response.IsSuccessStatusCode)
@@ -248,7 +248,7 @@ namespace Hugh
                 HttpStringContent content = new HttpStringContent(string.Format("{{ \"effect\": \"{0}\" }}", this._light.effect == Light.Effect.EFFECT_COLORLOOP ? "colorloop" : "none"), Windows.Storage.Streams.UnicodeEncoding.Utf8, "application/json");
                 string ip, username;
                 int port;
-                MainPage.RetrieveSettings(out ip, out port, out username);
+                SettingsService.RetrieveSettings(out ip, out port, out username);
                 var response = await client.PutAsync(new Uri(string.Format("http://{0}:{1}/api/{2}/lights/{3}/state", ip, port, username, this._light.id)), content).AsTask(cts.Token);
 
                 if (!response.IsSuccessStatusCode)
@@ -280,7 +280,7 @@ namespace Hugh
                 HttpStringContent content = new HttpStringContent(string.Format("{{ \"hue\": {0}, \"sat\": {1}, \"bri\": {2} }}", this._light.hue, this._light.saturation, this._light.value), Windows.Storage.Streams.UnicodeEncoding.Utf8, "application/json");
                 string ip, username;
                 int port;
-                MainPage.RetrieveSettings(out ip, out port, out username);
+                SettingsService.RetrieveSettings(out ip, out port, out username);
                 var response = await client.PutAsync(new Uri(string.Format("http://{0}:{1}/api/{2}/lights/{3}/state", ip, port, username, this._light.id)), content).AsTask(cts.Token);
 
                 if (!response.IsSuccessStatusCode)

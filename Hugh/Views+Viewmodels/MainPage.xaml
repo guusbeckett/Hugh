@@ -1,11 +1,12 @@
 ﻿<Page
-    x:Class="Hugh.MainPage"
+    x:Class="Hugh.Views_Viewmodels.MainPage"
     xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-    xmlns:local="using:Hugh"
+    xmlns:local="using:Hugh.Views_Viewmodels"
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     mc:Ignorable="d"
+    xmlns:HughLib="using:HughLib"
     Background="{ThemeResource ApplicationPageBackgroundThemeBrush}">
 
     <Page.Resources>
@@ -26,16 +27,15 @@
         <Style x:Key="LightContainerStyle" TargetType="ListViewItem">
             <Setter Property="HorizontalContentAlignment" Value="Stretch"/>
         </Style>
-
-        <DataTemplate x:Key="LightTemplate">
-            <Border BorderBrush="White" BorderThickness="1" Background="{Binding colorBackground}">
+        <DataTemplate x:Key="LightTemplate" x:DataType="HughLib:Light">
+            <Border BorderBrush="White" BorderThickness="1" Background="{x:Bind colorBackground}">
                 <Grid Margin="12,0,0,0">
                     <Grid.ColumnDefinitions>
                         <ColumnDefinition Width="2*"/>
                         <ColumnDefinition Width="9*"/>
                     </Grid.ColumnDefinitions>
 
-                    <TextBox VerticalAlignment="Center" Name="txtColor" Grid.Column="0" Text="{Binding colorText}" TextAlignment="Center" Foreground="White" Background="{Binding color}" IsReadOnly="True" IsHitTestVisible="False"/>
+                    <TextBox VerticalAlignment="Center" Name="txtColor" Grid.Column="0" Text="{x:Bind colorText}" TextAlignment="Center" Foreground="White" Background="{x:Bind color}" IsReadOnly="True" IsHitTestVisible="False"/>
 
                     <Grid Grid.Column="1" Margin="12">
                         <Grid.RowDefinitions>
@@ -44,19 +44,19 @@
                         </Grid.RowDefinitions>
 
                         <Grid.ColumnDefinitions>
-                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="53*"/>
+                            <ColumnDefinition Width="14*"/>
                         </Grid.ColumnDefinitions>
 
-                        <TextBlock Grid.Row="0" Style="{StaticResource LightNameStyle}" Text="{Binding name}"/>
-                        <TextBlock Grid.Row="1" Style="{StaticResource LightIdStyle}">
-                            <Run Text="id: "/>
-                            <Run Text="{Binding id}"/>
+                        <TextBlock Grid.Row="0" Style="{StaticResource LightNameStyle}" Text="{x:Bind name}" Grid.ColumnSpan="2" Margin="0,0,-0.667,16.667" Grid.RowSpan="2"/>
+                        <TextBlock Grid.Row="1" Style="{StaticResource LightIdStyle}" Grid.ColumnSpan="2" Margin="0,0.333,-0.667,-0.333">
+                                <Run Text="id: "/>
+                                <Run Text="{x:Bind id}"/>
                         </TextBlock>
                     </Grid>
                 </Grid>
             </Border>
         </DataTemplate>
-
     </Page.Resources>
 
     <Grid Margin="12,0,12,0">
@@ -67,9 +67,18 @@
         <Grid.ColumnDefinitions>
             <ColumnDefinition Width="*" />
         </Grid.ColumnDefinitions>
-
-        <TextBlock Text="Lights" Grid.Row="0" Grid.ColumnSpan="2" Margin="19,0,0,0" Style="{ThemeResource HeaderTextBlockStyle}" CharacterSpacing="{ThemeResource PivotHeaderItemCharacterSpacing}" />
-        <ListView x:Name="lvLights" Grid.Row="1" Grid.Column="0" Margin="0,12,0,0" ScrollViewer.VerticalScrollBarVisibility="Auto" ItemContainerStyle="{StaticResource LightContainerStyle}" ItemTemplate="{StaticResource LightTemplate}" IsItemClickEnabled="True" ItemClick="ItemView_ItemClick" />
+        <Pivot>
+            <PivotItem x:Name="LightsPivot" Header="Lights">
+                <ListView ScrollViewer.VerticalScrollBarVisibility="Auto"
+                          ItemContainerStyle="{StaticResource LightContainerStyle}" 
+                          ItemTemplate="{StaticResource LightTemplate}"
+                          ItemsSource="{x:Bind LightsPartViewModel.DisplayLights}"
+                          IsItemClickEnabled="True" ItemClick="LightsPartViewModel.ItemView_ItemClick" />
+            </PivotItem>
+            <PivotItem x:Name="GroupsPivot" Header="Groups">
+                <TextBlock Text="I'm sorry." />
+            </PivotItem>
+        </Pivot>
     </Grid>
 
     <Page.BottomAppBar>

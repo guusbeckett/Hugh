@@ -1,4 +1,5 @@
 ﻿using Hugh.Common;
+using Hugh.Services;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -16,7 +17,7 @@ using Windows.UI.Xaml.Navigation;
 
 // The Blank Page item template is documented at http://go.microsoft.com/fwlink/?LinkId=234238
 
-namespace Hugh
+namespace Hugh.Views_Viewmodels
 {
     /// <summary>
     /// An empty page that can be used on its own or navigated to within a Frame.
@@ -25,6 +26,7 @@ namespace Hugh
     {
         private readonly NavigationHelper _navigationHelper;
         private LoadStateEventArgs e;
+
         public SettingsPage()
         {
             this.InitializeComponent();
@@ -57,7 +59,7 @@ namespace Hugh
         {
             string ip, username;
             int port;
-            MainPage.RetrieveSettings(out ip, out port, out username);
+            SettingsService.RetrieveSettings(out ip, out port, out username);
             this.e = e;
 
             if (!NavigationHelper.CanGoBack())
@@ -115,7 +117,7 @@ namespace Hugh
 
         private void OkButton_Click(object sender, RoutedEventArgs e)
         {
-            MainPage.SetSettings(txtIp.Text, Convert.ToInt32(txtPort.Text), txtUsername.Text);
+            SettingsService.SetSettings(txtIp.Text, Convert.ToInt32(txtPort.Text), txtUsername.Text);
             if (NavigationHelper.CanGoBack())
                 this.NavigationHelper.GoBack();
             else

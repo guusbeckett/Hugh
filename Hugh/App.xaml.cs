@@ -1,4 +1,6 @@
-﻿using System;
+﻿using Hugh.Services;
+using Hugh.Views_Viewmodels;
+using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -46,7 +48,7 @@ namespace Hugh
         /// search results, and so forth.
         /// </summary>
         /// <param name="e">Details about the launch request and process.</param>
-        protected override async void OnLaunched(LaunchActivatedEventArgs e)
+        protected override void OnLaunched(LaunchActivatedEventArgs e)
         {
 #if DEBUG
             if (System.Diagnostics.Debugger.IsAttached)
@@ -95,7 +97,7 @@ namespace Hugh
                 // When the navigation stack isn't restored navigate to the first page,
                 // configuring the new page by passing required information as a navigation
                 // parameter
-                string tmpIp = MainPage.LOCAL_SETTINGS.Values["ip"] as string;
+                string tmpIp = SettingsService.LOCAL_SETTINGS.Values["ip"] as string;
                 if (string.IsNullOrEmpty(tmpIp))
                 {
                     if (!rootFrame.Navigate(typeof(SettingsPage), e.Arguments))

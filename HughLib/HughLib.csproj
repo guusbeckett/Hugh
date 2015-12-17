@@ -107,6 +107,7 @@
     <None Include="project.json" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="HueSettings.cs" />
     <Compile Include="Light.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Content Include="Properties\HughLib.rd.xml" />
