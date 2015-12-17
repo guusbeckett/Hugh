@@ -33,8 +33,6 @@ namespace Hugh.Views_Viewmodels
             this.navigationHelper = new NavigationHelper(this);
             this.navigationHelper.LoadState += this.NavigationHelper_LoadState;
             this.navigationHelper.SaveState += this.NavigationHelper_SaveState;
-
-            System.Diagnostics.Debug.WriteLine("Hello! I am a MainPage instance!");
         }
 
         /// <summary>

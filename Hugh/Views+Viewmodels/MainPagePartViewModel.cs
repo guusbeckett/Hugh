@@ -35,7 +35,6 @@ namespace Hugh.Views_Viewmodels
                 }
                 else
                 {
-                    System.Diagnostics.Debug.WriteLine("Success!");
                     retrievedLights.OrderBy(x => x.id);
                     //Do not override observable collection, messes up the binding
                     DisplayLights.Clear();

@@ -105,8 +105,10 @@ namespace Hugh.Views_Viewmodels
                 this.NavigationHelper.GoBack();
         }
 
-        private void OkButton_Click(object sender, RoutedEventArgs e)
+        private async void OkButton_Click(object sender, RoutedEventArgs e)
         {
+            if (txtUsername.Text.Length == 0)
+                 txtUsername.Text = await SettingsService.RetrieveUsername();
             SettingsService.SetSettings(txtIp.Text, Convert.ToInt32(txtPort.Text), txtUsername.Text);
             if (NavigationHelper.CanGoBack())
                 this.NavigationHelper.GoBack();

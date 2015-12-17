@@ -42,57 +42,7 @@ namespace Hugh.Services
             }
             return retVal;
         }
-
-        public static async Task<string> RetrieveUsername()
-        {
-            Boolean hasGotUsername = false;
-            string jsonResponse = "";
-            string usernameRetrieved = "";
-            while (!hasGotUsername)
-            {
-                try
-                {
-                    HttpClient client = new HttpClient();
-                    HttpStringContent content = new HttpStringContent("{\"devicetype\":\"HueApp#ComfyCrew\"}", Windows.Storage.Streams.UnicodeEncoding.Utf8, "application/json");
-                    string ip, username;
-                    int port;
-                    SettingsService.RetrieveSettings(out ip, out port, out username);
-                    var response = await client.PostAsync(new Uri(string.Format("http://{0}:{1}/api/", ip, port)), content);
-
-                    if (!response.IsSuccessStatusCode)
-                    {
-                        return string.Empty;
-                    }
-
-                    jsonResponse = await response.Content.ReadAsStringAsync();
-
-                    System.Diagnostics.Debug.WriteLine(jsonResponse);
-
-                    JsonArray jsonArray = JsonArray.Parse(jsonResponse);
-                    ICollection<string> keys = jsonArray.First().GetObject().Keys;
-                    if (keys.Contains("error"))
-                    {
-                        Hugh.Views_Viewmodels.MainPage.ShowErrorDialogue();
-                        await Task.Delay(TimeSpan.FromSeconds(1));
-                    }
-                    else
-                    {
-                        hasGotUsername = true;
-                        JsonObject succesObject = jsonArray.First().GetObject();
-
-                        System.Diagnostics.Debug.WriteLine(succesObject.Values.First().GetObject().Values.First().GetString());
-                        usernameRetrieved = succesObject.Values.First().GetObject().Values.First().GetString();
-                    }
-
-                }
-                catch (Exception)
-                {
-                    return string.Empty;
-                }
-            }
-            return usernameRetrieved;
-        }
-
+        
         public static List<Light> ParseJson(string json)
         {
             List<Light> lights = new List<Light>();
