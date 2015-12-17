@@ -2,25 +2,11 @@
 using Hugh.Services;
 using HughLib;
 using System;
-using System.Collections.Generic;
-using System.IO;
-using System.Linq;
-using System.Runtime.InteropServices.WindowsRuntime;
-using System.Threading;
-using System.Threading.Tasks;
-using Windows.Data.Json;
-using Windows.Foundation;
-using Windows.Foundation.Collections;
-using Windows.UI.Core;
 using Windows.UI.Popups;
 using Windows.UI.Xaml;
 using Windows.UI.Xaml.Controls;
-using Windows.UI.Xaml.Controls.Primitives;
-using Windows.UI.Xaml.Data;
 using Windows.UI.Xaml.Input;
-using Windows.UI.Xaml.Media;
 using Windows.UI.Xaml.Navigation;
-using Windows.Web.Http;
 
 
 // The Blank Page item template is documented at http://go.microsoft.com/fwlink/?LinkId=234238
@@ -129,7 +115,7 @@ namespace Hugh.Views_Viewmodels
             if (this._pageLoaded)
             {
                 this._light.name = txtName.Text;
-                var response = await LightNameTask();
+                var response = await HueLightService.LightNameTask(_light);
                 if (string.IsNullOrEmpty(response))
                     await new MessageDialog("Error while setting light properties. Please check your application settings.").ShowAsync();
             }
@@ -154,151 +140,23 @@ namespace Hugh.Views_Viewmodels
 
         private async void LightOn()
         {
-            var response = await LightOnTask();
+            var response = await HueLightService.LightOnTask(_light);
             if (string.IsNullOrEmpty(response))
                 await new MessageDialog("Error while setting light properties. Please check your application settings.").ShowAsync();
         }
 
         private async void LightLoop()
         {
-            var response = await LightLoopTask();
+            var response = await HueLightService.LightLoopTask(_light);
             if (string.IsNullOrEmpty(response))
                 await new MessageDialog("Error while setting light properties. Please check your application settings.").ShowAsync();
         }
 
         private async void LightColor()
         {
-            var response = await LightColorTask();
+            var response = await HueLightService.LightColorTask(_light);
             if (string.IsNullOrEmpty(response))
                 await new MessageDialog("Error while setting light properties. Please check your application settings.").ShowAsync();
-        }
-
-        private async Task<string> LightNameTask()
-        {
-            var cts = new CancellationTokenSource();
-            cts.CancelAfter(5000);
-
-            try
-            {
-                HttpClient client = new HttpClient();
-                HttpStringContent content = new HttpStringContent(string.Format("{{ \"name\": \"{0}\" }}", this._light.name), Windows.Storage.Streams.UnicodeEncoding.Utf8, "application/json");
-                string ip, username;
-                int port;
-                SettingsService.RetrieveSettings(out ip, out port, out username);
-                var response = await client.PutAsync(new Uri(string.Format("http://{0}:{1}/api/{2}/lights/{3}", ip, port, username, this._light.id)), content).AsTask(cts.Token);
-
-                if (!response.IsSuccessStatusCode)
-                {
-                    return string.Empty;
-                }
-
-                string jsonResponse = await response.Content.ReadAsStringAsync();
-
-                System.Diagnostics.Debug.WriteLine(jsonResponse);
-
-                return jsonResponse;
-            }
-            catch (Exception ex)
-            {
-                System.Diagnostics.Debug.WriteLine(ex.Message);
-                return string.Empty;
-            }
-        }
-
-        private async Task<string> LightOnTask()
-        {
-            var cts = new CancellationTokenSource();
-            cts.CancelAfter(5000);
-
-            try
-            {
-                HttpClient client = new HttpClient();
-                HttpStringContent content = new HttpStringContent(string.Format("{{ \"on\": {0} }}", this._light.on.ToString().ToLower()), Windows.Storage.Streams.UnicodeEncoding.Utf8, "application/json");
-                string ip, username;
-                int port;
-                SettingsService.RetrieveSettings(out ip, out port, out username);
-                var response = await client.PutAsync(new Uri(string.Format("http://{0}:{1}/api/{2}/lights/{3}/state", ip, port, username, this._light.id)), content).AsTask(cts.Token);
-
-                if (!response.IsSuccessStatusCode)
-                {
-                    return string.Empty;
-                }
-
-                string jsonResponse = await response.Content.ReadAsStringAsync();
-
-                System.Diagnostics.Debug.WriteLine(jsonResponse);
-
-                return jsonResponse;
-            }
-            catch (Exception ex)
-            {
-                System.Diagnostics.Debug.WriteLine(ex.Message);
-                return string.Empty;
-            }
-        }
-
-        private async Task<string> LightLoopTask()
-        {
-            var cts = new CancellationTokenSource();
-            cts.CancelAfter(5000);
-
-            try
-            {
-                HttpClient client = new HttpClient();
-                HttpStringContent content = new HttpStringContent(string.Format("{{ \"effect\": \"{0}\" }}", this._light.effect == Light.Effect.EFFECT_COLORLOOP ? "colorloop" : "none"), Windows.Storage.Streams.UnicodeEncoding.Utf8, "application/json");
-                string ip, username;
-                int port;
-                SettingsService.RetrieveSettings(out ip, out port, out username);
-                var response = await client.PutAsync(new Uri(string.Format("http://{0}:{1}/api/{2}/lights/{3}/state", ip, port, username, this._light.id)), content).AsTask(cts.Token);
-
-                if (!response.IsSuccessStatusCode)
-                {
-                    return string.Empty;
-                }
-
-                string jsonResponse = await response.Content.ReadAsStringAsync();
-
-                System.Diagnostics.Debug.WriteLine(jsonResponse);
-
-                return jsonResponse;
-            }
-            catch (Exception ex)
-            {
-                System.Diagnostics.Debug.WriteLine(ex.Message);
-                return string.Empty;
-            }
-        }
-
-        private async Task<string> LightColorTask()
-        {
-            var cts = new CancellationTokenSource();
-            cts.CancelAfter(5000);
-
-            try
-            {
-                HttpClient client = new HttpClient();
-                HttpStringContent content = new HttpStringContent(string.Format("{{ \"hue\": {0}, \"sat\": {1}, \"bri\": {2} }}", this._light.hue, this._light.saturation, this._light.value), Windows.Storage.Streams.UnicodeEncoding.Utf8, "application/json");
-                string ip, username;
-                int port;
-                SettingsService.RetrieveSettings(out ip, out port, out username);
-                var response = await client.PutAsync(new Uri(string.Format("http://{0}:{1}/api/{2}/lights/{3}/state", ip, port, username, this._light.id)), content).AsTask(cts.Token);
-
-                if (!response.IsSuccessStatusCode)
-                {
-                    return string.Empty;
-                }
-
-                string jsonResponse = await response.Content.ReadAsStringAsync();
-
-                System.Diagnostics.Debug.WriteLine(jsonResponse);
-
-                return jsonResponse;
-            }
-            catch (Exception ex)
-            {
-                System.Diagnostics.Debug.WriteLine(ex.Message);
-                return string.Empty;
-            }
         }
 
         void GoBack()
