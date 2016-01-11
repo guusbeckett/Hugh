@@ -11,6 +11,36 @@ namespace Hugh.Services
 {
     class HueLightService
     {
+        public static async Task<List<Light>> RetrieveGroups()
+        {
+            var cts = new CancellationTokenSource();
+            List<Light> retVal = new List<Light>();
+            cts.CancelAfter(5000);
+
+            try
+            {
+                HttpClient client = new HttpClient();
+                string ip, username;
+                int port;
+                SettingsService.RetrieveSettings(out ip, out port, out username);
+                var response = await client.GetAsync(new Uri(string.Format("http://{0}:{1}/api/{2}/groups/", ip, port, username))).AsTask(cts.Token);
+
+                if (!response.IsSuccessStatusCode)
+                {
+                    cts.Cancel();
+                }
+
+                string jsonResponse = await response.Content.ReadAsStringAsync();             
+
+                retVal = ParseGroups(jsonResponse);
+            }
+            catch (Exception)
+            {
+                cts.Cancel();
+            }
+            return retVal;
+        }
+
         public static async Task<List<Light>> RetrieveLights()
         {
             var cts = new CancellationTokenSource();
@@ -34,7 +64,7 @@ namespace Hugh.Services
 
                 //System.Diagnostics.Debug.WriteLine(jsonResponse);
 
-                retVal = ParseJson(jsonResponse);
+                retVal = ParseLights(jsonResponse);
             }
             catch (Exception)
             {
@@ -42,8 +72,56 @@ namespace Hugh.Services
             }
             return retVal;
         }
-        
-        public static List<Light> ParseJson(string json)
+
+        public static List<Light> ParseGroups(string json)
+        {
+            List<Light> lightGroups = new List<Light>();
+            JsonObject jsonObject = JsonObject.Parse(json);
+
+            foreach (string key in jsonObject.Keys)
+            {
+                string lightId = key;
+
+                if (lightId.Equals("error"))
+                {
+                    System.Diagnostics.Debug.WriteLine(jsonObject[key]);
+                    continue;
+                }
+
+                JsonObject groupToAdd;
+                Light g = null;
+
+                try
+                {
+                    groupToAdd = jsonObject.GetNamedObject(key, null);
+
+                    JsonObject lightState = groupToAdd.GetNamedObject("action", null);
+                    if (lightState != null)
+                    {
+                        Light.Effect effect = Light.Effect.EFFECT_NONE;
+                        if (lightState.GetNamedString("effect", string.Empty).Equals("colorloop"))
+                            effect = Light.Effect.EFFECT_COLORLOOP;
+
+                        g = new Light(Convert.ToInt32(lightId), groupToAdd.GetNamedString("name", string.Empty), lightState.GetNamedBoolean("on", false),
+                                        Convert.ToInt32(lightState.GetNamedNumber("hue", 0)), Convert.ToInt32(lightState.GetNamedNumber("sat", 255)),
+                                        Convert.ToInt32(lightState.GetNamedNumber("bri", 255)), effect, lightState.GetNamedBoolean("reachable", false));
+                    }
+                    else
+                        g = new Light(Convert.ToInt32(lightId), string.Format("Hue lamp {0}", lightId), true, 20000, 255, 255, Light.Effect.EFFECT_NONE, true);
+                }
+                catch (Exception e)
+                {
+                    System.Diagnostics.Debug.WriteLine(string.Format("{0} - {1}", e.Message, e.StackTrace));
+                    continue;
+                }
+
+                if (g != null)
+                    lightGroups.Add(g);
+            }
+            return lightGroups;
+        }
+
+        public static List<Light> ParseLights(string json)
         {
             List<Light> lights = new List<Light>();
 

@@ -28,7 +28,7 @@
             <Setter Property="HorizontalContentAlignment" Value="Stretch"/>
         </Style>
         <DataTemplate x:Key="LightTemplate" x:DataType="HughLib:Light">
-            <Border BorderBrush="White" BorderThickness="1" Background="{x:Bind colorBackground}">
+            <Border BorderBrush="White" BorderThickness="1" >
                 <Grid Margin="12,0,0,0">
                     <Grid.ColumnDefinitions>
                         <ColumnDefinition Width="2*"/>
@@ -76,7 +76,11 @@
                           IsItemClickEnabled="True" ItemClick="LightsPartViewModel.ItemView_ItemClick" />
             </PivotItem>
             <PivotItem x:Name="GroupsPivot" Header="Groups">
-                <TextBlock Text="I'm sorry." />
+                <ListView ScrollViewer.VerticalScrollBarVisibility="Auto"
+                          ItemContainerStyle="{StaticResource LightContainerStyle}" 
+                          ItemTemplate="{StaticResource LightTemplate}"
+                          ItemsSource="{x:Bind GroupsPartViewModel.DisplayGroups}"
+                          IsItemClickEnabled="True" ItemClick="GroupsPartViewModel.ItemView_ItemClick" />
             </PivotItem>
         </Pivot>
     </Grid>

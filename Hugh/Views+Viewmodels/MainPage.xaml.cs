@@ -121,7 +121,7 @@ namespace Hugh.Views_Viewmodels
         {
             //For now we'll refresh both. I would like to know how to refresh only the current active pivotitem
             LightsPartViewModel.RefreshContent();
-            //GroupsPartViewModel.RefreshContent();
+            GroupsPartViewModel.RefreshContent();
         }
 
         private void RefreshLightsButton_Click(object sender, RoutedEventArgs e)
