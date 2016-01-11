@@ -152,10 +152,10 @@ namespace Hugh.Services
 
                         l = new Light(Convert.ToInt32(lightId), lightToAdd.GetNamedString("name", string.Empty), lightState.GetNamedBoolean("on", false),
                                         Convert.ToInt32(lightState.GetNamedNumber("hue", 0)), Convert.ToInt32(lightState.GetNamedNumber("sat", 255)),
-                                        Convert.ToInt32(lightState.GetNamedNumber("bri", 255)), effect, lightState.GetNamedBoolean("reachable", false));
+                                        Convert.ToInt32(lightState.GetNamedNumber("bri", 255)), effect, lightState.GetNamedBoolean("reachable", false), false);
                     }
                     else
-                        l = new Light(Convert.ToInt32(lightId), string.Format("Hue lamp {0}", lightId), true, 20000, 255, 255, Light.Effect.EFFECT_NONE, true);
+                        l = new Light(Convert.ToInt32(lightId), string.Format("Hue lamp {0}", lightId), true, 20000, 255, 255, Light.Effect.EFFECT_NONE, true, false);
                 }
                 catch (Exception e)
                 {
