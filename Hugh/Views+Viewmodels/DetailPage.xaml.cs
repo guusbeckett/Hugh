@@ -63,6 +63,14 @@ namespace Hugh.Views_Viewmodels
             this._pageLoaded = false;
             this._light = e.NavigationParameter as Light;
             this.DataContext = this._light;
+            if(_light.isGroup)
+            {
+                toggleOn.Header = "Group state: ";
+            }
+            else
+            {
+                toggleOn.Header = "Light state: ";
+            }
         }
 
         /// <summary>
@@ -115,7 +123,7 @@ namespace Hugh.Views_Viewmodels
             if (this._pageLoaded)
             {
                 this._light.name = txtName.Text;
-                var response = await HueLightService.LightNameTask(_light);
+                var response = (_light.isGroup) ? await HueLightService.GroupNameTask(_light) : await HueLightService.LightNameTask(_light);
                 if (string.IsNullOrEmpty(response))
                     await new MessageDialog("Error while setting light properties. Please check your application settings.").ShowAsync();
             }
@@ -140,21 +148,21 @@ namespace Hugh.Views_Viewmodels
 
         private async void LightOn()
         {
-            var response = await HueLightService.LightOnTask(_light);
+            var response = (_light.isGroup)? await HueLightService.GroupOnTask(_light) : await HueLightService.LightOnTask(_light);
             if (string.IsNullOrEmpty(response))
                 await new MessageDialog("Error while setting light properties. Please check your application settings.").ShowAsync();
         }
 
         private async void LightLoop()
         {
-            var response = await HueLightService.LightLoopTask(_light);
+            var response = (_light.isGroup) ? await HueLightService.GroupLoopTask(_light) : await HueLightService.LightLoopTask(_light);
             if (string.IsNullOrEmpty(response))
                 await new MessageDialog("Error while setting light properties. Please check your application settings.").ShowAsync();
         }
 
         private async void LightColor()
         {
-            var response = await HueLightService.LightColorTask(_light);
+            var response = (_light.isGroup) ? await HueLightService.GroupColorTask(_light) : await HueLightService.LightColorTask(_light);
             if (string.IsNullOrEmpty(response))
                 await new MessageDialog("Error while setting light properties. Please check your application settings.").ShowAsync();
         }

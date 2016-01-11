@@ -299,5 +299,133 @@ namespace Hugh.Services
                 return string.Empty;
             }
         }
+
+        public static async Task<string> GroupNameTask(Light light)
+        {
+            var cts = new CancellationTokenSource();
+            cts.CancelAfter(5000);
+
+            try
+            {
+                HttpClient client = new HttpClient();
+                HttpStringContent content = new HttpStringContent(string.Format("{{ \"name\": \"{0}\" }}", light.name), Windows.Storage.Streams.UnicodeEncoding.Utf8, "application/json");
+                string ip, username;
+                int port;
+                SettingsService.RetrieveSettings(out ip, out port, out username);
+                var response = await client.PutAsync(new Uri(string.Format("http://{0}:{1}/api/{2}/groups/{3}", ip, port, username, light.id)), content).AsTask(cts.Token);
+
+                if (!response.IsSuccessStatusCode)
+                {
+                    return string.Empty;
+                }
+
+                string jsonResponse = await response.Content.ReadAsStringAsync();
+
+                System.Diagnostics.Debug.WriteLine(jsonResponse);
+
+                return jsonResponse;
+            }
+            catch (Exception ex)
+            {
+                System.Diagnostics.Debug.WriteLine(ex.Message);
+                return string.Empty;
+            }
+        }
+
+        public static async Task<string> GroupOnTask(Light light)
+        {
+            var cts = new CancellationTokenSource();
+            cts.CancelAfter(5000);
+
+            try
+            {
+                HttpClient client = new HttpClient();
+                HttpStringContent content = new HttpStringContent(string.Format("{{ \"on\": {0} }}", light.on.ToString().ToLower()), Windows.Storage.Streams.UnicodeEncoding.Utf8, "application/json");
+                string ip, username;
+                int port;
+                SettingsService.RetrieveSettings(out ip, out port, out username);
+                var response = await client.PutAsync(new Uri(string.Format("http://{0}:{1}/api/{2}/groups/{3}/action", ip, port, username, light.id)), content).AsTask(cts.Token);
+
+                if (!response.IsSuccessStatusCode)
+                {
+                    return string.Empty;
+                }
+
+                string jsonResponse = await response.Content.ReadAsStringAsync();
+
+                System.Diagnostics.Debug.WriteLine(jsonResponse);
+
+                return jsonResponse;
+            }
+            catch (Exception ex)
+            {
+                System.Diagnostics.Debug.WriteLine(ex.Message);
+                return string.Empty;
+            }
+        }
+
+        public static async Task<string> GroupLoopTask(Light light)
+        {
+            var cts = new CancellationTokenSource();
+            cts.CancelAfter(5000);
+
+            try
+            {
+                HttpClient client = new HttpClient();
+                HttpStringContent content = new HttpStringContent(string.Format("{{ \"effect\": \"{0}\" }}", light.effect == Light.Effect.EFFECT_COLORLOOP ? "colorloop" : "none"), Windows.Storage.Streams.UnicodeEncoding.Utf8, "application/json");
+                string ip, username;
+                int port;
+                SettingsService.RetrieveSettings(out ip, out port, out username);
+                var response = await client.PutAsync(new Uri(string.Format("http://{0}:{1}/api/{2}/groups/{3}/action", ip, port, username, light.id)), content).AsTask(cts.Token);
+
+                if (!response.IsSuccessStatusCode)
+                {
+                    return string.Empty;
+                }
+
+                string jsonResponse = await response.Content.ReadAsStringAsync();
+
+                System.Diagnostics.Debug.WriteLine(jsonResponse);
+
+                return jsonResponse;
+            }
+            catch (Exception ex)
+            {
+                System.Diagnostics.Debug.WriteLine(ex.Message);
+                return string.Empty;
+            }
+        }
+
+        public static async Task<string> GroupColorTask(Light light)
+        {
+            var cts = new CancellationTokenSource();
+            cts.CancelAfter(5000);
+
+            try
+            {
+                HttpClient client = new HttpClient();
+                HttpStringContent content = new HttpStringContent(string.Format("{{ \"hue\": {0}, \"sat\": {1}, \"bri\": {2} }}", light.hue, light.saturation, light.value), Windows.Storage.Streams.UnicodeEncoding.Utf8, "application/json");
+                string ip, username;
+                int port;
+                SettingsService.RetrieveSettings(out ip, out port, out username);
+                var response = await client.PutAsync(new Uri(string.Format("http://{0}:{1}/api/{2}/groups/{3}/action", ip, port, username, light.id)), content).AsTask(cts.Token);
+
+                if (!response.IsSuccessStatusCode)
+                {
+                    return string.Empty;
+                }
+
+                string jsonResponse = await response.Content.ReadAsStringAsync();
+
+                System.Diagnostics.Debug.WriteLine(jsonResponse);
+
+                return jsonResponse;
+            }
+            catch (Exception ex)
+            {
+                System.Diagnostics.Debug.WriteLine(ex.Message);
+                return string.Empty;
+            }
+        }
     }
 }
