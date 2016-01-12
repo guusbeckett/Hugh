@@ -1,8 +1,11 @@
 ﻿using Hugh.Services;
 using Hugh.Views_Viewmodels;
 using System;
+using System.Collections.Generic;
+using System.Linq;
 using Windows.ApplicationModel;
 using Windows.ApplicationModel.Activation;
+using Windows.Storage;
 using Windows.UI.Core;
 using Windows.UI.Xaml;
 using Windows.UI.Xaml.Controls;
@@ -34,7 +37,7 @@ namespace Hugh
         /// search results, and so forth.
         /// </summary>
         /// <param name="e">Details about the launch request and process.</param>
-        protected override void OnLaunched(LaunchActivatedEventArgs e)
+        protected override async void OnLaunched(LaunchActivatedEventArgs e)
         {
 #if DEBUG
             if (System.Diagnostics.Debugger.IsAttached)
@@ -108,6 +111,19 @@ namespace Hugh
 
             // Ensure the current window is active
             Window.Current.Activate();
+
+            try
+            {
+                // Install the main VCD. Since there's no simple way to test that the VCD has been imported, or that it's your most recent
+                // version, it's not unreasonable to do this upon app load.
+                StorageFile vcdStorageFile = await Package.Current.InstalledLocation.GetFileAsync(@"Cortana\HughVoiceCommand.xml");
+
+                await Windows.ApplicationModel.VoiceCommands.VoiceCommandDefinitionManager.InstallCommandDefinitionsFromStorageFileAsync(vcdStorageFile);
+            }
+            catch (Exception ex)
+            {
+                System.Diagnostics.Debug.WriteLine("Installing Voice Commands Failed: " + ex.ToString());
+            }
         }
 
         /// <summary>
@@ -155,6 +171,130 @@ namespace Hugh
                 e.Handled = true;
                 rootFrame.GoBack();
             }
+        }
+
+        /**
+         * The OnActivated replaces OnLaunched when this app is started in an
+         * exceptional way (ie a background task or in our case using Cortana)
+         */
+        protected async override void OnActivated(IActivatedEventArgs e)
+        {
+            base.OnActivated(e);
+
+            //Type navigationToPageType;
+            //HughLib.VoiceCommand? command = null; We don't have such a struct yet, it doesn't seem necessary
+
+            //We'll prep the list of lights/groups here. I'd prefer not to do this and load from internal storage
+            //a centralised .xml or something, but that would require effort. If you're doomed to continue with this
+            //project, I sincerely hope you'll implement this for me.  
+            List<HughLib.Light> Lights = await HueLightService.RetrieveLights();
+            List<HughLib.Light> Groups = await HueLightService.RetrieveGroups();
+
+            // This app can be launched directly with the following commands: Turn on ALL lights or turn on LIGHT_NAME
+            // As of now those commands start the app to execute the command, but we can also let this get handled by
+            // the backgroundservice. Maybe a smart idea
+            if (e.Kind == ActivationKind.VoiceCommand)
+            {
+                // The arguments can represent many different activation types. Cast it so we can get the
+                // parameters we care about out.
+                var commandArgs = e as VoiceCommandActivatedEventArgs;
+
+                Windows.Media.SpeechRecognition.SpeechRecognitionResult speechRecognitionResult = commandArgs.Result;
+
+                // Get the name of the voice command and the text spoken. See HughVoiceCommand.xml for
+                // the <Command> tags this can be filled with.
+                string voiceCommandName = speechRecognitionResult.RulePath[0];
+                string textSpoken = speechRecognitionResult.Text;
+                System.Diagnostics.Debug.WriteLine("Command name: " + voiceCommandName);
+                System.Diagnostics.Debug.WriteLine("Command name: " + textSpoken);
+
+                // The commandMode is either "voice" or "text", and it indictes how the voice command
+                // was entered by the user.
+                // Apps should respect "text" mode by providing feedback in silent form.               
+                string commandMode = speechRecognitionResult.SemanticInterpretation.Properties["commandMode"].FirstOrDefault();
+
+                switch (voiceCommandName)
+                {
+                    case "AllLamps":
+                        // Access the value of the {} phrase in the voice command
+                        string state = speechRecognitionResult.SemanticInterpretation.Properties["states"].FirstOrDefault();
+                        if (state == "On")
+                        {
+                            System.Diagnostics.Debug.WriteLine("Turn lights on");
+                            HughLib.Light dimmer2 = Groups.Find(x => x.name == "Dimmer 2"); //For now let's assume this exists     
+                            dimmer2.on = true; //I didn't know I had to do this.                    
+                            var response = await HueLightService.GroupOnTask(dimmer2); 
+                            System.Diagnostics.Debug.WriteLine("Response: "+response);
+                        }
+                        else
+                        {
+                            System.Diagnostics.Debug.WriteLine("Turn lights off");
+                            HughLib.Light dimmer2 = Groups.Find(x => x.name == "Dimmer 2");
+                            dimmer2.on = false;
+                            var response = await HueLightService.GroupOnTask(dimmer2);
+                            System.Diagnostics.Debug.WriteLine("Response: " + response);
+                        }
+                        break;
+                    case "SpecificLamps":
+                        throw new NotImplementedException();
+                    default:
+                        System.Diagnostics.Debug.WriteLine("Unkown command, doing nothing");
+                        break;
+                }
+            } //Started via the background task
+            else if (e.Kind == ActivationKind.Protocol)
+            {
+                // Extract the launch context. In this case, we're just using the destination from the phrase set (passed
+                // along in the background task inside Cortana), which makes no attempt to be unique. A unique id or 
+                // identifier is ideal for more complex scenarios. We let the destination page check if the 
+                // destination trip still exists, and navigate back to the trip list if it doesn't.
+                /*var commandArgs = args as ProtocolActivatedEventArgs;
+                Windows.Foundation.WwwFormUrlDecoder decoder = new Windows.Foundation.WwwFormUrlDecoder(commandArgs.Uri.Query);
+                var destination = decoder.GetFirstValueByName("LaunchContext");
+
+                navigationCommand = new ViewModel.TripVoiceCommand(
+                                        "protocolLaunch",
+                                        "text",
+                                        "destination",
+                                        destination);
+
+                navigationToPageType = typeof(View.TripDetails);*/
+                throw new NotImplementedException();
+            }
+
+            // Re"peat the same basic initialization as OnLaunched() above, taking into account whether
+            // or not the app is already active.
+            Frame rootFrame = Window.Current.Content as Frame;
+
+            // Do not repeat app initialization when the Window already has content,
+            // just ensure that the window is active
+            if (rootFrame == null)
+            {
+                // Create a Frame to act as the navigation context and navigate to the first page
+                rootFrame = new Frame();
+
+                // Place the frame in the current Window
+                Window.Current.Content = rootFrame;
+            }
+
+            //If we have any special navigation cases from a command (Show detailspage for a light)
+            //We'll want to replace this
+            rootFrame.Navigate(typeof(MainPage)); 
+
+            // Ensure the current window is active
+            Window.Current.Activate();
+
+            // Register a handler for BackRequested events and set the
+            // visibility of the Back button
+            SystemNavigationManager.GetForCurrentView().BackRequested += OnBackRequested;
+
+            SystemNavigationManager.GetForCurrentView().AppViewBackButtonVisibility =
+                rootFrame.CanGoBack ?
+                AppViewBackButtonVisibility.Visible :
+                AppViewBackButtonVisibility.Collapsed;
+
+            // Ensure the current window is active
+            Window.Current.Activate();
         }
     }
 }

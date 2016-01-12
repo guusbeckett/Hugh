@@ -1,9 +1,6 @@
-﻿<VoiceCommands xmlns="http://schemas.microsoft.com/voicecommands/1.2">
-  <CommandSet xml:lang="en-us" Name="AdventureWorksCommandSet_en-us">
-
-  </CommandSet>
-
-  <CommandSet xml:lang="en-gb" Name="AdventureWorksCommandSet_en-gb">
+﻿<?xml version="1.0" encoding="utf-8" ?>
+<VoiceCommands xmlns="http://schemas.microsoft.com/voicecommands/1.2">
+  <CommandSet xml:lang="en-us" Name="Hugh_en-us">
     <AppName> Hugh </AppName>
     <Example> Hugh, turn on all lights. </Example>
 
@@ -12,17 +9,56 @@
       <ListenFor RequireAppName="BeforeOrAfterPhrase"> turn [all] [my] lights {states} </ListenFor>
       <ListenFor RequireAppName="BeforeOrAfterPhrase"> turn {states} [all] [my] lights</ListenFor>
       <ListenFor RequireAppName="ExplicitlySpecified"> Turn [my] {builtin:AppName} lights {states} </ListenFor>
-      <Feedback> Showing trip to {destination} </Feedback>
-      <Navigate Target=""/>
+      <Feedback> Turning on all lights. </Feedback>
+      <Navigate /> <!--Navigate to app-->
     </Command>
 
+    <Command Name="SpecificLamp">
+      <Example> Hugh, you must turn on Lamp A.</Example>
+      <ListenFor RequireAppName="BeforeOrAfterPhrase"> you must turn {lamps} {states} </ListenFor>
+      <ListenFor RequireAppName="BeforeOrAfterPhrase"> you must turn {states} {lamps} </ListenFor>
+      <Feedback> Turning on {states}. </Feedback>
+      <Navigate />
+    </Command>
+      
     <PhraseList Label="states">
       <Item>On</Item>
       <Item>Off</Item>
     </PhraseList>
     
     <PhraseList Label="lamps">
-      <Item>Lamp A</Item>
+      
+    </PhraseList>
+  </CommandSet>
+
+  <CommandSet xml:lang="en-gb" Name="Hugh_en-gb">
+    <AppName> Hugh </AppName>
+    <Example> Hugh, turn on all lights. </Example>
+
+    <Command Name="AllLamps">
+      <Example> Hugh, turn on all lights. </Example>
+      <ListenFor RequireAppName="BeforeOrAfterPhrase"> turn [all] [my] lights {states} </ListenFor>
+      <ListenFor RequireAppName="BeforeOrAfterPhrase"> turn {states} [all] [my] lights</ListenFor>
+      <ListenFor RequireAppName="ExplicitlySpecified"> Turn [my] {builtin:AppName} lights {states} </ListenFor>
+      <Feedback> Turning {states} all lights. </Feedback>
+      <Navigate /> <!--Navigate to app-->
+    </Command>
+
+    <Command Name="SpecificLamp">
+      <Example> Hugh, you must turn on Lamp A.</Example>
+      <ListenFor RequireAppName="BeforeOrAfterPhrase"> you must turn {lamps} {states} </ListenFor>
+      <ListenFor RequireAppName="BeforeOrAfterPhrase"> you must turn {states} {lamps} </ListenFor>
+      <Feedback> Turning on {states}. </Feedback>
+      <Navigate />
+    </Command>
+      
+    <PhraseList Label="states">
+      <Item>On</Item>
+      <Item>Off</Item>
+    </PhraseList>
+    
+    <PhraseList Label="lamps">
+      
     </PhraseList>
   </CommandSet>
 </VoiceCommands>
