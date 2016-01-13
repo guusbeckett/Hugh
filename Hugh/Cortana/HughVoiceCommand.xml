@@ -9,25 +9,27 @@
       <ListenFor RequireAppName="BeforeOrAfterPhrase"> turn [all] [my] lights {states} </ListenFor>
       <ListenFor RequireAppName="BeforeOrAfterPhrase"> turn {states} [all] [my] lights</ListenFor>
       <ListenFor RequireAppName="ExplicitlySpecified"> Turn [my] {builtin:AppName} lights {states} </ListenFor>
-      <Feedback> Turning on all lights. </Feedback>
-      <Navigate /> <!--Navigate to app-->
+      <Feedback> Turning {states} all lights. </Feedback>
+      <Navigate />
+      <!--Navigate to app-->
     </Command>
 
-    <Command Name="SpecificLamp">
+    <Command Name="SpecificLight">
       <Example> Hugh, you must turn on Lamp A.</Example>
-      <ListenFor RequireAppName="BeforeOrAfterPhrase"> you must turn {lamps} {states} </ListenFor>
-      <ListenFor RequireAppName="BeforeOrAfterPhrase"> you must turn {states} {lamps} </ListenFor>
+      <ListenFor RequireAppName="BeforeOrAfterPhrase"> please switch {lights} {states} </ListenFor>
+      <ListenFor RequireAppName="BeforeOrAfterPhrase"> please switch {states} {lights} </ListenFor>
       <Feedback> Turning on {states}. </Feedback>
       <Navigate />
     </Command>
-      
+
     <PhraseList Label="states">
       <Item>On</Item>
       <Item>Off</Item>
     </PhraseList>
-    
-    <PhraseList Label="lamps">
-      
+
+    <PhraseList Label="lights">
+      <!--Empty untill set in HueLightService.UpdateLightsPhraseList-->
+      <Item>Light A</Item>
     </PhraseList>
   </CommandSet>
 
@@ -44,11 +46,11 @@
       <Navigate /> <!--Navigate to app-->
     </Command>
 
-    <Command Name="SpecificLamp">
+    <Command Name="SpecificLight">
       <Example> Hugh, you must turn on Lamp A.</Example>
-      <ListenFor RequireAppName="BeforeOrAfterPhrase"> you must turn {lamps} {states} </ListenFor>
-      <ListenFor RequireAppName="BeforeOrAfterPhrase"> you must turn {states} {lamps} </ListenFor>
-      <Feedback> Turning on {states}. </Feedback>
+      <ListenFor RequireAppName="BeforeOrAfterPhrase"> please switch {lights} {states} </ListenFor>
+      <ListenFor RequireAppName="BeforeOrAfterPhrase"> please switch {states} {lights} </ListenFor>
+      <Feedback> Turning {states} {lights}. </Feedback>
       <Navigate />
     </Command>
       
@@ -57,8 +59,9 @@
       <Item>Off</Item>
     </PhraseList>
     
-    <PhraseList Label="lamps">
-      
+    <PhraseList Label="lights">
+      <!--Empty untill set in HueLightService.UpdateLightsPhraseList-->
     </PhraseList>
+   
   </CommandSet>
 </VoiceCommands>

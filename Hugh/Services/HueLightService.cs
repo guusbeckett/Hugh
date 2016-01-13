@@ -1,9 +1,12 @@
 ﻿using HughLib;
 using System;
 using System.Collections.Generic;
+using System.Globalization;
+using System.IO;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
+using Windows.ApplicationModel.VoiceCommands;
 using Windows.Data.Json;
 using Windows.Web.Http;
 
@@ -33,6 +36,8 @@ namespace Hugh.Services
                 string jsonResponse = await response.Content.ReadAsStringAsync();             
 
                 retVal = ParseGroups(jsonResponse);
+
+                //var IgnoredTask = UpdateGroupsPhraseList(retVal);
             }
             catch (Exception)
             {
@@ -65,6 +70,8 @@ namespace Hugh.Services
                 //System.Diagnostics.Debug.WriteLine(jsonResponse);
 
                 retVal = ParseLights(jsonResponse);
+                var IgnoredTask = UpdateLightsPhraseList(retVal);
+                IgnoredTask.Start();
             }
             catch (Exception)
             {
@@ -427,5 +434,61 @@ namespace Hugh.Services
                 return string.Empty;
             }
         }
+
+        public static async Task UpdateLightsPhraseList(List<Light> lights)
+        {
+            try
+            {
+                // Update the destination phrase list, so that Cortana voice commands can use destinations added by users.
+                // When saving a trip, the UI navigates automatically back to this page, so the phrase list will be
+                // updated automatically.
+                VoiceCommandDefinition commandDefinitions;
+
+                string countryCode = CultureInfo.CurrentCulture.Name.ToLower();
+                if (countryCode.Length == 0)
+                {
+                    countryCode = "en-us";
+                }
+
+                if (VoiceCommandDefinitionManager.InstalledCommandDefinitions.TryGetValue("Hugh_" + countryCode, out commandDefinitions))
+                {
+                    List<string> lightNames = new List<string>();
+                    lights.ForEach(x => lightNames.Add(x.name));
+                    await commandDefinitions.SetPhraseListAsync("lights", lightNames);
+                }
+            }
+            catch (Exception ex)
+            {
+                System.Diagnostics.Debug.WriteLine("Updating Phrase list for VCDs: " + ex.ToString());
+            }
+        }
+
+        /*public static async Task UpdateGroupsPhraseList(List<Light> lights)
+        {
+            try
+            {
+                // Update the destination phrase list, so that Cortana voice commands can use destinations added by users.
+                // When saving a trip, the UI navigates automatically back to this page, so the phrase list will be
+                // updated automatically.
+                VoiceCommandDefinition commandDefinitions;
+
+                string countryCode = CultureInfo.CurrentCulture.Name.ToLower();
+                if (countryCode.Length == 0)
+                {
+                    countryCode = "en-us";
+                }
+
+                if (VoiceCommandDefinitionManager.InstalledCommandDefinitions.TryGetValue("Hugh_" + countryCode, out commandDefinitions))
+                {
+                    List<string> lightNames = new List<string>();
+                    lights.ForEach(x => lightNames.Add(x.name));
+                    await commandDefinitions.SetPhraseListAsync("groups", lightNames);
+                }
+            }
+            catch (Exception ex)
+            {
+                System.Diagnostics.Debug.WriteLine("Updating Phrase list for VCDs: " + ex.ToString());
+            }
+        }*/
     }
 }
