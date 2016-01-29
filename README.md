@@ -1,7 +1,7 @@
 # Hugh
 Alternative Hue app with **marvellous** cortana implementation
 
-## Application Functionnality
+## Application Functionality
 
 This app shows the basic implementation of Cortana in a Philips hue light context.
 
